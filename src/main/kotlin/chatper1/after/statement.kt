@@ -84,7 +84,12 @@ fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
 }
 
 fun statement(invoice: Invoice, plays: Map<String, Play>): String{
-    val statementData = StatementData(invoice.customer, invoice.performances)
+    fun enrichPerformance(aPerformance: Performance): Performance{
+        val result = aPerformance.copy()
+        return result
+    }
+
+    val statementData = StatementData(invoice.customer, invoice.performances.map{enrichPerformance(it)})
     return renderPlainText(statementData, plays)
 }
 
