@@ -16,29 +16,13 @@ fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
         return formatter.format(aNumber/100)
     }
 
-    fun totalVolumeCredits(): Int{
-        var volumeCredits = 0
-        for (perf in data.performances) {
-            volumeCredits += perf.volumeCredits
-        }
-        return volumeCredits
-    }
-
-    fun totalAmount(): Int{
-        var result = 0
-        for (perf in data.performances) {
-            result += perf.amount
-        }
-        return result
-    }
-
     var result = "청구 내역 (고객명: ${data.customer})\n"
     for (perf in data.performances) {
         result += "  ${perf.play.name}: \$${usd(perf.amount)} (${perf.audience})석\n"
     }
 
-    result += "총액: \$${usd(totalAmount())}\n"
-    result += "적립 포인트: ${totalVolumeCredits()}점\n"
+    result += "총액: \$${usd(data.totalAmount)}\n"
+    result += "적립 포인트: ${data.totalVolumeCredits}점\n"
     return result
 }
 
@@ -82,6 +66,22 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String{
         return result
     }
 
+    fun totalVolumeCredits(data: StatementData): Int{
+        var volumeCredits = 0
+        for (perf in data.performances) {
+            volumeCredits += perf.volumeCredits
+        }
+        return volumeCredits
+    }
+
+    fun totalAmount(data: StatementData): Int{
+        var result = 0
+        for (perf in data.performances) {
+            result += perf.amount
+        }
+        return result
+    }
+
     fun enrichPerformance(aPerformance: Performance): EnrichPerformance{
         return EnrichPerformance(
             playID = aPerformance.playID,
@@ -93,7 +93,10 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String{
         }
     }
 
-    val statementData = StatementData(invoice.customer, invoice.performances.map{enrichPerformance(it)})
+    val statementData = StatementData(invoice.customer, invoice.performances.map{enrichPerformance(it)}).apply {
+        totalAmount = totalAmount(this)
+        totalVolumeCredits = totalVolumeCredits(this)
+    }
     return renderPlainText(statementData, plays)
 }
 
