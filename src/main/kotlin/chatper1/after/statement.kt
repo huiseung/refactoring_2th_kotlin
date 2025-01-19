@@ -48,13 +48,12 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String {
     formatter.minimumFractionDigits = 2 // 소수점 최소 두 자리
 
     for (perf in invoice.performances) {
-        val thisAmount = amountFor(perf)
         volumeCredits += max(perf.audience - 30, 0)
         if("comedy" == playFor(perf).type){
             volumeCredits += floor(perf.audience.toDouble() / 5).toInt()
         }
-        result += "  ${playFor(perf).name}: \$${formatter.format(thisAmount.toDouble()/100)} (${perf.audience})석\n"
-        totalAmount += thisAmount
+        result += "  ${playFor(perf).name}: \$${formatter.format(amountFor(perf).toDouble()/100)} (${perf.audience})석\n"
+        totalAmount += amountFor(perf)
     }
     result += "총액: \$${formatter.format(totalAmount/100)}\n"
     result += "적립 포인트: ${volumeCredits}점\n"
