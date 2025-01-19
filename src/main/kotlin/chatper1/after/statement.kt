@@ -8,12 +8,11 @@ import java.util.*
 import kotlin.math.floor
 import kotlin.math.max
 
-fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
-
-    fun usd(aNumber: Int): String{
+fun renderPlainText(data: StatementData): String {
+    fun usd(aNumber: Int): String {
         val formatter = NumberFormat.getNumberInstance(Locale.US)
         formatter.minimumFractionDigits = 2 // 소수점 최소 두 자리
-        return formatter.format(aNumber/100)
+        return formatter.format(aNumber / 100)
     }
 
     var result = "청구 내역 (고객명: ${data.customer})\n"
@@ -26,14 +25,14 @@ fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
     return result
 }
 
-fun statement(invoice: Invoice, plays: Map<String, Play>): String{
+fun createStatementData(invoice: Invoice, plays: Map<String, Play>): StatementData {
     fun playFor(aPerformance: Performance): Play {
         return plays.getOrElse(aPerformance.playID) {
             Play("unknown", "unknown")
         }
     }
 
-    fun amountFor(aPerformance: EnrichPerformance): Int{
+    fun amountFor(aPerformance: EnrichPerformance): Int {
         var result = 0
 
         when (aPerformance.play.type) {
@@ -57,28 +56,28 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String{
         return result
     }
 
-    fun volumeCreditsFor(aPerformance: EnrichPerformance): Int{
+    fun volumeCreditsFor(aPerformance: EnrichPerformance): Int {
         var result = 0
         result += max(aPerformance.audience - 30, 0)
-        if("comedy" == aPerformance.play.type){
+        if ("comedy" == aPerformance.play.type) {
             result += floor(aPerformance.audience.toDouble() / 5).toInt()
         }
         return result
     }
 
-    fun totalVolumeCredits(data: StatementData): Int{
-        return data.performances.sumOf{
+    fun totalVolumeCredits(data: StatementData): Int {
+        return data.performances.sumOf {
             it.volumeCredits
         }
     }
 
-    fun totalAmount(data: StatementData): Int{
+    fun totalAmount(data: StatementData): Int {
         return data.performances.sumOf {
             it.amount
         }
     }
 
-    fun enrichPerformance(aPerformance: Performance): EnrichPerformance{
+    fun enrichPerformance(aPerformance: Performance): EnrichPerformance {
         return EnrichPerformance(
             playID = aPerformance.playID,
             audience = aPerformance.audience,
@@ -89,11 +88,14 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String{
         }
     }
 
-    val statementData = StatementData(invoice.customer, invoice.performances.map{enrichPerformance(it)}).apply {
+    return StatementData(invoice.customer, invoice.performances.map { enrichPerformance(it) }).apply {
         totalAmount = totalAmount(this)
         totalVolumeCredits = totalVolumeCredits(this)
     }
-    return renderPlainText(statementData, plays)
+}
+
+fun statement(invoice: Invoice, plays: Map<String, Play>): String {
+    return renderPlainText(createStatementData(invoice, plays))
 }
 
 
