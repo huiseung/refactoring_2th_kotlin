@@ -1,9 +1,8 @@
 package chapter1.after
-
-import Invoice
-import Performance
-import Play
 import chatper1.after.statement
+import chatper1.data.Invoice
+import chatper1.data.Performance
+import chatper1.data.Play
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
