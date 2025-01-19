@@ -42,6 +42,10 @@ class PerformanceCalculator(
     }
 }
 
+fun createPerformanceCalculator(aPerformance: Performance, aPlay: Play): PerformanceCalculator{
+    return PerformanceCalculator(aPerformance, aPlay)
+}
+
 fun createStatementData(invoice: Invoice, plays: Map<String, Play>): StatementData {
     fun playFor(aPerformance: Performance): Play {
         return plays.getOrElse(aPerformance.playID) {
@@ -62,7 +66,7 @@ fun createStatementData(invoice: Invoice, plays: Map<String, Play>): StatementDa
     }
 
     fun enrichPerformance(aPerformance: Performance): EnrichPerformance {
-        val calculator = PerformanceCalculator(aPerformance, playFor(aPerformance))
+        val calculator = createPerformanceCalculator(aPerformance, playFor(aPerformance))
         return EnrichPerformance(
             playID = aPerformance.playID,
             audience = aPerformance.audience,
