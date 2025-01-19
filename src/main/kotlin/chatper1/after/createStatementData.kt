@@ -4,21 +4,12 @@ import chatper1.data.*
 import kotlin.math.floor
 import kotlin.math.max
 
-open class PerformanceCalculator(
+abstract class PerformanceCalculator(
     val performance: Performance,
     val play: Play
 ) {
 
-    open fun amount(): Int {
-        var result = 0
-
-        when (this.play.type) {
-            "tragedy" -> throw Error()
-            "comedy" -> throw Error()
-            else -> throw Error("알 수 없는 장르: ${this.play.type}")
-        }
-        return result
-    }
+    abstract fun amount(): Int
 
     open fun volumeCredits(): Int {
         return max(this.performance.audience - 30, 0)
@@ -51,17 +42,17 @@ class ComedyCalculator(
         return result
     }
 
-    override fun volumeCredits(): Int{
+    override fun volumeCredits(): Int {
         return super.volumeCredits() + floor(this.performance.audience.toDouble() / 5).toInt()
     }
 }
 
 fun createPerformanceCalculator(aPerformance: Performance, aPlay: Play): PerformanceCalculator {
-    when (aPlay.type) {
+    return when (aPlay.type) {
         "tragedy" -> return TragedyCalculator(aPerformance, aPlay)
         "comedy" -> return ComedyCalculator(aPerformance, aPlay)
+        else -> throw Error()
     }
-    return PerformanceCalculator(aPerformance, aPlay)
 }
 
 fun createStatementData(invoice: Invoice, plays: Map<String, Play>): StatementData {
