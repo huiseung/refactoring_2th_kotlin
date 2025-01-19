@@ -10,7 +10,7 @@ import java.util.*
 import kotlin.math.floor
 import kotlin.math.max
 
-fun statement(invoice: Invoice, plays: Map<String, Play>): String {
+fun renderPlainText(invoice: Invoice, plays: Map<String, Play>): String {
     fun playFor(aPerformance: Performance): Play {
         return plays.getOrElse(aPerformance.playID) {
             Play("unknown", "unknown")
@@ -80,6 +80,10 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String {
     result += "총액: \$${usd(totalAmount())}\n"
     result += "적립 포인트: ${totalVolumeCredits()}점\n"
     return result
+}
+
+fun statement(invoice: Invoice, plays: Map<String, Play>): String{
+    return renderPlainText(invoice, plays)
 }
 
 
