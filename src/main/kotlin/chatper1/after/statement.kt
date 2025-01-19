@@ -1,10 +1,7 @@
 package chatper1.after
 
 
-import chatper1.data.Invoice
-import chatper1.data.Performance
-import chatper1.data.Play
-import chatper1.data.StatementData
+import chatper1.data.*
 import chatper1.util.readJson
 import java.text.NumberFormat
 import java.util.*
@@ -12,16 +9,10 @@ import kotlin.math.floor
 import kotlin.math.max
 
 fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
-    fun playFor(aPerformance: Performance): Play {
-        return plays.getOrElse(aPerformance.playID) {
-            Play("unknown", "unknown")
-        }
-    }
-
-    fun amountFor(aPerformance: Performance): Int{
+    fun amountFor(aPerformance: EnrichPerformance): Int{
         var result = 0
 
-        when (playFor(aPerformance).type) {
+        when (aPerformance.play.type) {
             "tragedy" -> {
                 result = 40_000
                 if (aPerformance.audience > 30) {
@@ -37,15 +28,15 @@ fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
                 result += 300 * aPerformance.audience
             }
 
-            else -> throw Error("알 수 없는 장르: ${playFor(aPerformance).type}")
+            else -> throw Error("알 수 없는 장르: ${aPerformance.play.type}")
         }
         return result
     }
 
-    fun volumeCreditsFor(aPerformance: Performance): Int{
+    fun volumeCreditsFor(aPerformance: EnrichPerformance): Int{
         var result = 0
         result += max(aPerformance.audience - 30, 0)
-        if("comedy" == playFor(aPerformance).type){
+        if("comedy" == aPerformance.play.type){
             result += floor(aPerformance.audience.toDouble() / 5).toInt()
         }
         return result
@@ -75,7 +66,7 @@ fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
 
     var result = "청구 내역 (고객명: ${data.customer})\n"
     for (perf in data.performances) {
-        result += "  ${playFor(perf).name}: \$${usd(amountFor(perf))} (${perf.audience})석\n"
+        result += "  ${perf.play.name}: \$${usd(amountFor(perf))} (${perf.audience})석\n"
     }
 
     result += "총액: \$${usd(totalAmount())}\n"
@@ -84,9 +75,18 @@ fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
 }
 
 fun statement(invoice: Invoice, plays: Map<String, Play>): String{
-    fun enrichPerformance(aPerformance: Performance): Performance{
-        val result = aPerformance.copy()
-        return result
+    fun playFor(aPerformance: Performance): Play {
+        return plays.getOrElse(aPerformance.playID) {
+            Play("unknown", "unknown")
+        }
+    }
+
+    fun enrichPerformance(aPerformance: Performance): EnrichPerformance{
+        return EnrichPerformance(
+            playID = aPerformance.playID,
+            audience = aPerformance.audience,
+            play = playFor(aPerformance)
+        )
     }
 
     val statementData = StatementData(invoice.customer, invoice.performances.map{enrichPerformance(it)})
