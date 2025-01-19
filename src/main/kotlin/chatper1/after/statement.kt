@@ -11,28 +11,28 @@ import kotlin.math.floor
 import kotlin.math.max
 
 fun statement(invoice: Invoice, plays: Map<String, Play>): String {
-    fun amountFor(perf: Performance, play: Play): Int{
-        var thisAmount = 0
+    fun amountFor(aPerformance: Performance, play: Play): Int{
+        var result = 0
 
         when (play.type) {
             "tragedy" -> {
-                thisAmount = 40_000
-                if (perf.audience > 30) {
-                    thisAmount += 1_000 * (perf.audience - 30)
+                result = 40_000
+                if (aPerformance.audience > 30) {
+                    result += 1_000 * (aPerformance.audience - 30)
                 }
             }
 
             "comedy" -> {
-                thisAmount = 30_000
-                if (perf.audience > 20) {
-                    thisAmount += 10_000 + 500 * (perf.audience - 20)
+                result = 30_000
+                if (aPerformance.audience > 20) {
+                    result += 10_000 + 500 * (aPerformance.audience - 20)
                 }
-                thisAmount += 300 * perf.audience
+                result += 300 * aPerformance.audience
             }
 
             else -> throw Error("알 수 없는 장르: ${play.type}")
         }
-        return thisAmount
+        return result
     }
 
     var totalAmount = 0
