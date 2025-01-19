@@ -4,6 +4,12 @@ import chatper1.data.*
 import kotlin.math.floor
 import kotlin.math.max
 
+class PerformanceCalculator(
+    val performance: Performance,
+    val play: Play){
+
+}
+
 fun createStatementData(invoice: Invoice, plays: Map<String, Play>): StatementData {
     fun playFor(aPerformance: Performance): Play {
         return plays.getOrElse(aPerformance.playID) {
@@ -57,10 +63,11 @@ fun createStatementData(invoice: Invoice, plays: Map<String, Play>): StatementDa
     }
 
     fun enrichPerformance(aPerformance: Performance): EnrichPerformance {
+        val calculator = PerformanceCalculator(aPerformance, playFor(aPerformance))
         return EnrichPerformance(
             playID = aPerformance.playID,
             audience = aPerformance.audience,
-            play = playFor(aPerformance),
+            play = calculator.play,
         ).apply {
             amount = amountFor(this)
             volumeCredits = volumeCreditsFor(this)
