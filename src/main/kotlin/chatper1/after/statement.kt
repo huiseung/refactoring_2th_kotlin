@@ -9,14 +9,6 @@ import kotlin.math.floor
 import kotlin.math.max
 
 fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
-    fun volumeCreditsFor(aPerformance: EnrichPerformance): Int{
-        var result = 0
-        result += max(aPerformance.audience - 30, 0)
-        if("comedy" == aPerformance.play.type){
-            result += floor(aPerformance.audience.toDouble() / 5).toInt()
-        }
-        return result
-    }
 
     fun usd(aNumber: Int): String{
         val formatter = NumberFormat.getNumberInstance(Locale.US)
@@ -27,7 +19,7 @@ fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
     fun totalVolumeCredits(): Int{
         var volumeCredits = 0
         for (perf in data.performances) {
-            volumeCredits += volumeCreditsFor(perf)
+            volumeCredits += perf.volumeCredits
         }
         return volumeCredits
     }
@@ -81,6 +73,14 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String{
         return result
     }
 
+    fun volumeCreditsFor(aPerformance: EnrichPerformance): Int{
+        var result = 0
+        result += max(aPerformance.audience - 30, 0)
+        if("comedy" == aPerformance.play.type){
+            result += floor(aPerformance.audience.toDouble() / 5).toInt()
+        }
+        return result
+    }
 
     fun enrichPerformance(aPerformance: Performance): EnrichPerformance{
         return EnrichPerformance(
@@ -89,6 +89,7 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String{
             play = playFor(aPerformance),
         ).apply {
             amount = amountFor(this)
+            volumeCredits = volumeCreditsFor(this)
         }
     }
 

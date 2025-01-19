@@ -15,6 +15,7 @@ data class EnrichPerformance(
     val audience: Int,
     val play: Play,
     var amount: Int = 0,
+    var volumeCredits: Int = 0,
 )
 
 data class Invoice(
