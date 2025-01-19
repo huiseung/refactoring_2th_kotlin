@@ -4,35 +4,23 @@ import chatper1.data.*
 import kotlin.math.floor
 import kotlin.math.max
 
-class PerformanceCalculator(
+open class PerformanceCalculator(
     val performance: Performance,
-    val play: Play){
+    val play: Play
+) {
 
-    fun amount(): Int{
+    open fun amount(): Int {
         var result = 0
 
         when (this.play.type) {
-            "tragedy" -> {
-                result = 40_000
-                if (this.performance.audience > 30) {
-                    result += 1_000 * (this.performance.audience - 30)
-                }
-            }
-
-            "comedy" -> {
-                result = 30_000
-                if (this.performance.audience > 20) {
-                    result += 10_000 + 500 * (this.performance.audience - 20)
-                }
-                result += 300 * this.performance.audience
-            }
-
+            "tragedy" -> throw Error()
+            "comedy" -> throw Error()
             else -> throw Error("알 수 없는 장르: ${this.play.type}")
         }
         return result
     }
 
-    fun volumeCredits(): Int{
+    fun volumeCredits(): Int {
         var result = 0
         result += max(this.performance.audience - 30, 0)
         if ("comedy" == this.play.type) {
@@ -42,7 +30,38 @@ class PerformanceCalculator(
     }
 }
 
-fun createPerformanceCalculator(aPerformance: Performance, aPlay: Play): PerformanceCalculator{
+class TragedyCalculator(
+    performance: Performance,
+    play: Play
+) : PerformanceCalculator(performance, play) {
+    override fun amount(): Int {
+        var result = 40_000
+        if (this.performance.audience > 30) {
+            result += 1_000 * (this.performance.audience - 30)
+        }
+        return result
+    }
+}
+
+class ComedyCalculator(
+    performance: Performance,
+    play: Play
+) : PerformanceCalculator(performance, play) {
+    override fun amount(): Int {
+        var result = 30_000
+        if (this.performance.audience > 20) {
+            result += 10_000 + 500 * (this.performance.audience - 20)
+        }
+        result += 300 * this.performance.audience
+        return result
+    }
+}
+
+fun createPerformanceCalculator(aPerformance: Performance, aPlay: Play): PerformanceCalculator {
+    when (aPlay.type) {
+        "tragedy" -> return TragedyCalculator(aPerformance, aPlay)
+        "comedy" -> return ComedyCalculator(aPerformance, aPlay)
+    }
     return PerformanceCalculator(aPerformance, aPlay)
 }
 
