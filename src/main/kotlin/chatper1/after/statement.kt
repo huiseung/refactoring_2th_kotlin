@@ -4,13 +4,14 @@ package chatper1.after
 import chatper1.data.Invoice
 import chatper1.data.Performance
 import chatper1.data.Play
+import chatper1.data.StatementData
 import chatper1.util.readJson
 import java.text.NumberFormat
 import java.util.*
 import kotlin.math.floor
 import kotlin.math.max
 
-fun renderPlainText(invoice: Invoice, plays: Map<String, Play>): String {
+fun renderPlainText(statementData: StatementData, invoice: Invoice, plays: Map<String, Play>): String {
     fun playFor(aPerformance: Performance): Play {
         return plays.getOrElse(aPerformance.playID) {
             Play("unknown", "unknown")
@@ -72,7 +73,7 @@ fun renderPlainText(invoice: Invoice, plays: Map<String, Play>): String {
         return result
     }
 
-    var result = "청구 내역 (고객명: ${invoice.customer})\n"
+    var result = "청구 내역 (고객명: ${statementData.customer})\n"
     for (perf in invoice.performances) {
         result += "  ${playFor(perf).name}: \$${usd(amountFor(perf))} (${perf.audience})석\n"
     }
@@ -83,7 +84,8 @@ fun renderPlainText(invoice: Invoice, plays: Map<String, Play>): String {
 }
 
 fun statement(invoice: Invoice, plays: Map<String, Play>): String{
-    return renderPlainText(invoice, plays)
+    val statementData = StatementData(invoice.customer)
+    return renderPlainText(statementData, invoice, plays)
 }
 
 

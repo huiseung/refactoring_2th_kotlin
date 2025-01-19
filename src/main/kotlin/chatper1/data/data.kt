@@ -14,3 +14,7 @@ data class Play(
     val name: String,
     val type: String,
 )
+
+data class StatementData(
+    val customer: String,
+)
