@@ -50,10 +50,10 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String {
         return result
     }
 
-    fun format(aNumber: Int): String{
+    fun usd(aNumber: Int): String{
         val formatter = NumberFormat.getNumberInstance(Locale.US)
         formatter.minimumFractionDigits = 2 // 소수점 최소 두 자리
-        return formatter.format(aNumber)
+        return formatter.format(aNumber/100)
     }
 
     var totalAmount = 0
@@ -63,10 +63,10 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String {
 
     for (perf in invoice.performances) {
         volumeCredits += volumeCreditsFor(perf)
-        result += "  ${playFor(perf).name}: \$${format(amountFor(perf)/100)} (${perf.audience})석\n"
+        result += "  ${playFor(perf).name}: \$${usd(amountFor(perf))} (${perf.audience})석\n"
         totalAmount += amountFor(perf)
     }
-    result += "총액: \$${format(totalAmount/100)}\n"
+    result += "총액: \$${usd(totalAmount)}\n"
     result += "적립 포인트: ${volumeCredits}점\n"
     return result
 }
