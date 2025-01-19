@@ -17,4 +17,5 @@ data class Play(
 
 data class StatementData(
     val customer: String,
+    val performances: List<Performance>,
 )

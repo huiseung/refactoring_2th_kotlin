@@ -11,7 +11,7 @@ import java.util.*
 import kotlin.math.floor
 import kotlin.math.max
 
-fun renderPlainText(statementData: StatementData, invoice: Invoice, plays: Map<String, Play>): String {
+fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
     fun playFor(aPerformance: Performance): Play {
         return plays.getOrElse(aPerformance.playID) {
             Play("unknown", "unknown")
@@ -59,7 +59,7 @@ fun renderPlainText(statementData: StatementData, invoice: Invoice, plays: Map<S
 
     fun totalVolumeCredits(): Int{
         var volumeCredits = 0
-        for (perf in invoice.performances) {
+        for (perf in data.performances) {
             volumeCredits += volumeCreditsFor(perf)
         }
         return volumeCredits
@@ -67,14 +67,14 @@ fun renderPlainText(statementData: StatementData, invoice: Invoice, plays: Map<S
 
     fun totalAmount(): Int{
         var result = 0
-        for (perf in invoice.performances) {
+        for (perf in data.performances) {
             result += amountFor(perf)
         }
         return result
     }
 
-    var result = "청구 내역 (고객명: ${statementData.customer})\n"
-    for (perf in invoice.performances) {
+    var result = "청구 내역 (고객명: ${data.customer})\n"
+    for (perf in data.performances) {
         result += "  ${playFor(perf).name}: \$${usd(amountFor(perf))} (${perf.audience})석\n"
     }
 
@@ -84,8 +84,8 @@ fun renderPlainText(statementData: StatementData, invoice: Invoice, plays: Map<S
 }
 
 fun statement(invoice: Invoice, plays: Map<String, Play>): String{
-    val statementData = StatementData(invoice.customer)
-    return renderPlainText(statementData, invoice, plays)
+    val statementData = StatementData(invoice.customer, invoice.performances)
+    return renderPlainText(statementData, plays)
 }
 
 
