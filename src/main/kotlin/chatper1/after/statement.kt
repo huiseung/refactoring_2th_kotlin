@@ -41,6 +41,15 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String {
         return result
     }
 
+    fun volumeCreditsFor(perf: Performance): Int{
+        var volumeCredits = 0
+        volumeCredits += max(perf.audience - 30, 0)
+        if("comedy" == playFor(perf).type){
+            volumeCredits += floor(perf.audience.toDouble() / 5).toInt()
+        }
+        return volumeCredits
+    }
+
     var totalAmount = 0
     var volumeCredits = 0
     var result = "청구 내역 (고객명: ${invoice.customer})\n"
@@ -48,10 +57,7 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String {
     formatter.minimumFractionDigits = 2 // 소수점 최소 두 자리
 
     for (perf in invoice.performances) {
-        volumeCredits += max(perf.audience - 30, 0)
-        if("comedy" == playFor(perf).type){
-            volumeCredits += floor(perf.audience.toDouble() / 5).toInt()
-        }
+        volumeCredits += volumeCreditsFor(perf)
         result += "  ${playFor(perf).name}: \$${formatter.format(amountFor(perf).toDouble()/100)} (${perf.audience})석\n"
         totalAmount += amountFor(perf)
     }
