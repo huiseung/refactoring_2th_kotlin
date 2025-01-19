@@ -80,10 +80,9 @@ fun createStatementData(invoice: Invoice, plays: Map<String, Play>): StatementDa
             playID = aPerformance.playID,
             audience = aPerformance.audience,
             play = calculator.play,
-        ).apply {
-            amount = calculator.amount()
-            volumeCredits = calculator.volumeCredits()
-        }
+            calculator.amount(),
+            calculator.volumeCredits()
+        )
     }
 
     return StatementData(invoice.customer, invoice.performances.map { enrichPerformance(it) }).apply {
