@@ -2,6 +2,7 @@ package chatper1.after
 
 
 import chatper1.data.Invoice
+import chatper1.data.Performance
 import chatper1.data.Play
 import chatper1.util.readJson
 import java.text.NumberFormat
@@ -10,16 +11,7 @@ import kotlin.math.floor
 import kotlin.math.max
 
 fun statement(invoice: Invoice, plays: Map<String, Play>): String {
-    var totalAmount = 0
-    var volumeCredits = 0
-    var result = "청구 내역 (고객명: ${invoice.customer})\n"
-    val formatter = NumberFormat.getNumberInstance(Locale.US)
-    formatter.minimumFractionDigits = 2 // 소수점 최소 두 자리
-
-    for (perf in invoice.performances) {
-        val play = plays.getOrElse(perf.playID) {
-            Play("unknown", "unknown")
-        }
+    fun amountFor(perf: Performance, play: Play): Int{
         var thisAmount = 0
 
         when (play.type) {
@@ -40,7 +32,20 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String {
 
             else -> throw Error("알 수 없는 장르: ${play.type}")
         }
+        return thisAmount
+    }
 
+    var totalAmount = 0
+    var volumeCredits = 0
+    var result = "청구 내역 (고객명: ${invoice.customer})\n"
+    val formatter = NumberFormat.getNumberInstance(Locale.US)
+    formatter.minimumFractionDigits = 2 // 소수점 최소 두 자리
+
+    for (perf in invoice.performances) {
+        val play = plays.getOrElse(perf.playID) {
+            Play("unknown", "unknown")
+        }
+        val thisAmount = amountFor(perf, play)
         volumeCredits += max(perf.audience - 30, 0)
         if("comedy" == play.type){
             volumeCredits += floor(perf.audience.toDouble() / 5).toInt()
