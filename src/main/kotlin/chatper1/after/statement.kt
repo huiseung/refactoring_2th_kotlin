@@ -35,6 +35,12 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String {
         return result
     }
 
+    fun playFor(aPerformance: Performance): Play {
+        return plays.getOrElse(aPerformance.playID) {
+            Play("unknown", "unknown")
+        }
+    }
+
     var totalAmount = 0
     var volumeCredits = 0
     var result = "청구 내역 (고객명: ${invoice.customer})\n"
@@ -42,9 +48,7 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String {
     formatter.minimumFractionDigits = 2 // 소수점 최소 두 자리
 
     for (perf in invoice.performances) {
-        val play = plays.getOrElse(perf.playID) {
-            Play("unknown", "unknown")
-        }
+        val play = playFor(perf)
         val thisAmount = amountFor(perf, play)
         volumeCredits += max(perf.audience - 30, 0)
         if("comedy" == play.type){
