@@ -8,6 +8,29 @@ class PerformanceCalculator(
     val performance: Performance,
     val play: Play){
 
+    fun amount(): Int{
+        var result = 0
+
+        when (this.play.type) {
+            "tragedy" -> {
+                result = 40_000
+                if (this.performance.audience > 30) {
+                    result += 1_000 * (this.performance.audience - 30)
+                }
+            }
+
+            "comedy" -> {
+                result = 30_000
+                if (this.performance.audience > 20) {
+                    result += 10_000 + 500 * (this.performance.audience - 20)
+                }
+                result += 300 * this.performance.audience
+            }
+
+            else -> throw Error("알 수 없는 장르: ${this.play.type}")
+        }
+        return result
+    }
 }
 
 fun createStatementData(invoice: Invoice, plays: Map<String, Play>): StatementData {
@@ -15,30 +38,6 @@ fun createStatementData(invoice: Invoice, plays: Map<String, Play>): StatementDa
         return plays.getOrElse(aPerformance.playID) {
             Play("unknown", "unknown")
         }
-    }
-
-    fun amountFor(aPerformance: EnrichPerformance): Int {
-        var result = 0
-
-        when (aPerformance.play.type) {
-            "tragedy" -> {
-                result = 40_000
-                if (aPerformance.audience > 30) {
-                    result += 1_000 * (aPerformance.audience - 30)
-                }
-            }
-
-            "comedy" -> {
-                result = 30_000
-                if (aPerformance.audience > 20) {
-                    result += 10_000 + 500 * (aPerformance.audience - 20)
-                }
-                result += 300 * aPerformance.audience
-            }
-
-            else -> throw Error("알 수 없는 장르: ${aPerformance.play.type}")
-        }
-        return result
     }
 
     fun volumeCreditsFor(aPerformance: EnrichPerformance): Int {
@@ -69,7 +68,7 @@ fun createStatementData(invoice: Invoice, plays: Map<String, Play>): StatementDa
             audience = aPerformance.audience,
             play = calculator.play,
         ).apply {
-            amount = amountFor(this)
+            amount = calculator.amount()
             volumeCredits = volumeCreditsFor(this)
         }
     }
