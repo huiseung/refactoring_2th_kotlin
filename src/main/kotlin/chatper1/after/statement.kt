@@ -9,30 +9,6 @@ import kotlin.math.floor
 import kotlin.math.max
 
 fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
-    fun amountFor(aPerformance: EnrichPerformance): Int{
-        var result = 0
-
-        when (aPerformance.play.type) {
-            "tragedy" -> {
-                result = 40_000
-                if (aPerformance.audience > 30) {
-                    result += 1_000 * (aPerformance.audience - 30)
-                }
-            }
-
-            "comedy" -> {
-                result = 30_000
-                if (aPerformance.audience > 20) {
-                    result += 10_000 + 500 * (aPerformance.audience - 20)
-                }
-                result += 300 * aPerformance.audience
-            }
-
-            else -> throw Error("알 수 없는 장르: ${aPerformance.play.type}")
-        }
-        return result
-    }
-
     fun volumeCreditsFor(aPerformance: EnrichPerformance): Int{
         var result = 0
         result += max(aPerformance.audience - 30, 0)
@@ -59,14 +35,14 @@ fun renderPlainText(data: StatementData, plays: Map<String, Play>): String {
     fun totalAmount(): Int{
         var result = 0
         for (perf in data.performances) {
-            result += amountFor(perf)
+            result += perf.amount
         }
         return result
     }
 
     var result = "청구 내역 (고객명: ${data.customer})\n"
     for (perf in data.performances) {
-        result += "  ${perf.play.name}: \$${usd(amountFor(perf))} (${perf.audience})석\n"
+        result += "  ${perf.play.name}: \$${usd(perf.amount)} (${perf.audience})석\n"
     }
 
     result += "총액: \$${usd(totalAmount())}\n"
@@ -81,12 +57,39 @@ fun statement(invoice: Invoice, plays: Map<String, Play>): String{
         }
     }
 
+    fun amountFor(aPerformance: EnrichPerformance): Int{
+        var result = 0
+
+        when (aPerformance.play.type) {
+            "tragedy" -> {
+                result = 40_000
+                if (aPerformance.audience > 30) {
+                    result += 1_000 * (aPerformance.audience - 30)
+                }
+            }
+
+            "comedy" -> {
+                result = 30_000
+                if (aPerformance.audience > 20) {
+                    result += 10_000 + 500 * (aPerformance.audience - 20)
+                }
+                result += 300 * aPerformance.audience
+            }
+
+            else -> throw Error("알 수 없는 장르: ${aPerformance.play.type}")
+        }
+        return result
+    }
+
+
     fun enrichPerformance(aPerformance: Performance): EnrichPerformance{
         return EnrichPerformance(
             playID = aPerformance.playID,
             audience = aPerformance.audience,
-            play = playFor(aPerformance)
-        )
+            play = playFor(aPerformance),
+        ).apply {
+            amount = amountFor(this)
+        }
     }
 
     val statementData = StatementData(invoice.customer, invoice.performances.map{enrichPerformance(it)})
